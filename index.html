@@ -1283,6 +1283,7 @@
     #download-btn { width:100%; justify-content:center; }
   }
 </style>
+<!-- reset visibility fix v2 -->
 </head>
 <body>
 
@@ -2587,6 +2588,21 @@ function triggerBoxReveal() {
   const boxWrap  = document.getElementById('box-wrap');
   const statusLabel = document.getElementById('status-label');
 
+  /* Hard reset any inline state left by the previous cycle */
+  overlay.style.display = '';
+  overlay.style.opacity = '';
+  overlay.style.transition = '';
+  overlay.classList.remove('box-visible');
+  boxWrap.classList.remove('box-arrive','box-arrived','box-floating','box-pre-open','box-shaking','box-opening');
+  boxWrap.style.opacity = '';
+  boxWrap.style.transform = '';
+  boxWrap.style.animation = '';
+  boxWrap.style.transition = '';
+  boxWrap.onclick = null;
+  boxWrap.style.cursor = '';
+  const oldHint = document.getElementById('box-hint');
+  if (oldHint) oldHint.remove();
+
   /* Populate sparkles */
   populateBoxSparkles();
 
@@ -3260,6 +3276,18 @@ function revealCard(card) {
   const overlay = document.getElementById('card-overlay');
   const cardEl  = document.getElementById('revealed-card');
 
+  /* Hard reset card visibility from any previous cycle */
+  overlay.classList.remove('card-visible');
+  cardEl.classList.remove('card-enter','card-idle');
+  cardEl.style.opacity = '';
+  cardEl.style.transform = '';
+  cardEl.style.animation = '';
+  cardEl.style.transition = '';
+  const surpriseWrap = document.getElementById('surprise-btn-wrap');
+  if (surpriseWrap) surpriseWrap.classList.remove('surprise-visible');
+  const actionsWrap = document.getElementById('card-actions-wrap');
+  if (actionsWrap) actionsWrap.classList.remove('actions-visible');
+
   // Build the card DOM
   buildCardFace(card);
   populateCardSparkles(card.accentColor);
@@ -3503,7 +3531,10 @@ function fullReset() {
   boxOverlay.classList.remove('box-visible');
   const boxWrap = document.getElementById('box-wrap');
   boxWrap.classList.remove('box-arrive','box-arrived','box-floating','box-pre-open','box-shaking','box-opening');
-  boxWrap.style.opacity = '0';
+  boxWrap.style.opacity = '';
+  boxWrap.style.transform = '';
+  boxWrap.style.animation = '';
+  boxWrap.style.transition = '';
   boxWrap.onclick = null;
   boxWrap.style.cursor = '';
   const hint = document.getElementById('box-hint');
@@ -3515,7 +3546,10 @@ function fullReset() {
   cardOverlay.classList.remove('card-visible');
   const cardEl = document.getElementById('revealed-card');
   cardEl.classList.remove('card-enter','card-idle');
-  cardEl.style.opacity = '0';
+  cardEl.style.opacity = '';
+  cardEl.style.transform = '';
+  cardEl.style.animation = '';
+  cardEl.style.transition = '';
   cardEl.innerHTML = '';
   document.getElementById('card-sparkles').innerHTML = '';
   document.getElementById('surprise-btn-wrap').classList.remove('surprise-visible');
