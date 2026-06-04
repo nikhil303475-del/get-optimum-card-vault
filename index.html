@@ -3261,9 +3261,34 @@ function onBoxTap() {
 
   // ── Phase 4: Card reveal (1900ms — 500ms after explosion) ──
   setTimeout(() => {
-    const card = CARD_DB[Math.floor(Math.random() * CARD_DB.length)];
+    const card = pickNextUncollectedCard();
     revealCard(card);
   }, 1900);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   NO-DUPLICATE CARD PICKER
+   Picks only cards that are not already in My Collection.
+   After all 21 are collected, it allows repeats again so the machine never breaks.
+   ═══════════════════════════════════════════════════ */
+function pickNextUncollectedCard() {
+  const collected = (typeof collectedIds !== 'undefined') ? collectedIds : new Set();
+  const remainingCards = CARD_DB.filter(card => !collected.has(card.id));
+
+  if (remainingCards.length > 0) {
+    return remainingCards[Math.floor(Math.random() * remainingCards.length)];
+  }
+
+  // All cards collected: allow replay without breaking the machine.
+  const sl = document.getElementById('status-label');
+  if (sl) {
+    sl.textContent = '✦ ALL 21 CARDS COLLECTED ✦';
+    sl.style.color = '#fbbf24';
+    sl.classList.add('visible');
+    setTimeout(() => sl.classList.remove('visible'), 3000);
+  }
+  return CARD_DB[Math.floor(Math.random() * CARD_DB.length)];
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3750,10 +3775,16 @@ function onMysteryBoxReveal() { triggerBoxReveal(); }
 
 const WEBSITE_URL = 'https://optimum.xyz';
 
-const collectedIds = new Set();
+const COLLECTION_STORAGE_KEY = 'optimumCardVaultCollectedIds';
+const collectedIds = new Set(JSON.parse(localStorage.getItem(COLLECTION_STORAGE_KEY) || '[]'));
+
+function saveCollection() {
+  localStorage.setItem(COLLECTION_STORAGE_KEY, JSON.stringify([...collectedIds]));
+}
 
 function recordCollection(card) {
   collectedIds.add(card.id);
+  saveCollection();
   updateCounter();
   renderGalleryGrid();
 }
@@ -3918,6 +3949,10 @@ fullReset = function() {
   const cc=document.getElementById('collection-counter');
   if (cc) cc.classList.remove('counter-visible');
 };
+
+// Initialize saved collection counter/gallery on page load
+updateCounter();
+renderGalleryGrid();
 </script>
 </body>
 </html>
